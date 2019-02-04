@@ -30,3 +30,59 @@
     transform: rotate(360deg);
   }
 }
+/*Home page */
+.homepage-container {
+  width: 100%;
+}
+/*Header*/
+.header {
+  height: 100px;
+  background-color: #677DB7;
+  padding-top: 1px;
+}
+.header h3 {
+  color: white;
+  font-weight: 300;
+  text-align: center;
+}
+.button-container {
+  display: flex;
+  justify-content: flex-start;
+}
+.header button {
+  background-color: white;
+  text-align: center;
+  margin-right: 10px;
+  height: 30px;
+  width: 100px;
+  border-radius: 10px;
+}
+#search-bar-input {
+  width: 40%;
+  height: 30px;
+  padding-left: 10px;
+  font-size: 1em;
+  display: flex;
+  color: #677DB7;
+  border-color: #9CA3DB;
+  padding-right: 10px;
+  border-radius: 10px;
+}
+::placeholder {
+  color: #677DB7;
+}
+#search-bar-drop-down {
+  height: 30px;
+  width: 150px;
+  font-size: 1.25em;
+  border-radius: 10px;
+  background-color: #677DB7;
+  color: white;
+  text-align: center;
+}
+
+/*Map Component */
+.map-container {
+  width: auto;
+  height: 600px;
+}
