@@ -13,10 +13,21 @@ class Header extends Component {
             type="text"
             placeholder="Search a place in Chicago"
           />
+          <button
+            onClick={this.props.getRecs.bind(this)}
+            >
+            Recommendations
+          </button>
           <select id='search-bar-drop-down'>
-            <option> Filter By </option>
+            <option> Venue Type </option>
           </select>
-          <Link to='/'>
+          <select id='search-bar-drop-down'>
+            <option> Neighborhood </option>
+          </select>
+          <Link
+            to='/'
+            onClick={() => this.props.initializeMap.bind()}
+            >
             <button
               >
               Map View

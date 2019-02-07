@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 class ListItem extends Component {
   render() {
+    console.log(this.props);
     const { name } = this.props;
     return (
       <ul className='result-item-list'>
