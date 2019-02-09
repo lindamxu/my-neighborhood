@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import Map from './components/Map.js';
 import ListView from './components/ListView.js';
-import { Route, Switch } from 'react-router-dom';
 import Icon from './icons/marker.png';
+import Header from './components/Header.js';
 import * as FoursquareAPI from './FoursquareAPI.js';
 import './App.css';
 
@@ -11,24 +11,84 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.initMap = this.initMap.bind(this);
-    this.searchBoxPlaces = this.searchBoxPlaces.bind(this);
     this.openInfoWindow = this.openInfoWindow.bind(this);
     this.state ={
-      searchResults: [],
       markers: [],
       recommendations: [],
-      mapref: ''
+      filteredResults: [],
+      venueDetails: [],
+      animatedMarker: false,
+      listOpen: false,
+      mapref: '',
+      itemClicked: false,
+      listItem: ''
     }
   }
+
+  startAnimation = (markerId) => {
+    console.log('starting animation');
+    var pickedMarker = this.state.markers.filter(marker => marker.id === markerId)[0];
+    pickedMarker.setAnimation(window.google.maps.Animation.BOUNCE);
+    this.map.panTo(pickedMarker.position);
+
+  }
+  closeAnimation = (markerId) => {
+    console.log('closing animation');
+    var pickedMarker = this.state.markers.filter(marker => marker.id === markerId)[0];
+    pickedMarker.setAnimation(-1);
+
+  }
+  toggleItemExpansion = (event) => {
+    this.setState({
+      listItem: event.target.getAttribute('id')
+    })
+    if (this.state.itemClicked) {
+      this.setState({
+        itemClicked: false,
+        animatedMarker: false
+      })
+    } else {
+      this.setState({
+        itemClicked: true,
+        animatedMarker: true
+      })
+    }
+  }
+
+
+  toggleList = () => {
+    if (this.state.listOpen) {
+      this.setState({
+        listOpen: false
+      })
+    } else {
+      this.setState({
+        listOpen: true
+      })
+    }
+  }
+
+  filterResults = (query) => {
+    if (query === '') {
+      this.setState({
+        filteredResults: [...this.state.recommendations]
+      });
+    } else {
+      this.setState({
+        filteredResults: [...this.state.recommendations].filter(place => new RegExp(query, 'i').exec(place.venue.name))
+      })
+    }
+  }
+
   hideMarkers = (markers) => {
     for (var i=0; i < markers.length; i++) {
       markers[i].setMap(null);
     }
   }
-
   createMarkersForPlaces = (places) => {
-    for (var i = 0; i < places.length; i++) {
 
+    // TODO: FIX! MAKE ONLY FOR FOURSQUARE API
+    for (var i = 0; i < places.length; i++) {
          var place = places[i];
          var icon = {
            url: Icon,
@@ -38,24 +98,16 @@ class App extends Component {
            scaledSize: new window.google.maps.Size(25, 25)
          };
 
-         if (place.geometry) {
-           //Google Map Suggestions
-           var position = place.geometry.location;
-         } else {
-           //FourSquare recommendations
-           position = {lat: place.venue.location.lat, lng: place.venue.location.lng}
-         }
+         var position = {lat: place.venue.location.lat, lng: place.venue.location.lng}
 
-         if (place.place_id) {
-           var place_id = place.place_id;
-         } else {
-           place_id = place.venue.id;
-         }
+         var place_id = place.venue.id;
+
          var marker = new window.google.maps.Marker({
            map: this.map,
            icon: icon,
            title: place.name,
            position: position,
+           animation: null,
            id: place_id
          });
 
@@ -65,6 +117,7 @@ class App extends Component {
            if (infoWindow.marker === this) {
              console.log("infoWindow is already on the marker");
            } else {
+             console.log(infoWindow);
              self.openInfoWindow(this, infoWindow);
            }
          });
@@ -74,153 +127,119 @@ class App extends Component {
   }
 }
   openInfoWindow = (marker, infoWindow) => {
-    var service = new window.google.maps.places.PlacesService(this.map);
-
     let self = this;
 
-    if (this.state.recommendations.length === 0) {
-      service.getDetails({
-        placeId: marker.id
-      }, function(place, status) {
-        console.log(place);
-        if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-          infoWindow.marker = marker;
-          var innerHTML = "<div className='infoWindow' style=' text-align: center'>";
-          if (place.name) {
-              innerHTML += '<strong>' + place.name + '</strong>';
-            }
+    // TODO: Fix marker issue
 
-         if (place.formatted_address) {
-           var address_strs = place.formatted_address.split(',');
+    console.log(self.state.venueDetails);
+    var venueFromState = self.state.venueDetails.filter(venue => venue.id === marker.id)[0];
+    console.log(venueFromState);
+    console.log('getting venue from state!!');
+    infoWindow.marker = marker;
+    console.log(infoWindow);
+    var innerHTML = "<div className='infoWindow' style=' text-align: center'>";
+    if (venueFromState.name) {
+        innerHTML += '<strong>' + venueFromState.name + '</strong>';
+      }
+    if (venueFromState.location) {
 
-           for (var i=0; i < address_strs.length; i++ ) {
-             innerHTML += '<br>' + address_strs[i];
-           }
-         }
-         if (place.formatted_phone_number) {
-           innerHTML += '<br>' + place.formatted_phone_number;
-         }
-         if (place.opening_hours) {
-           innerHTML += '<br><br><strong>Hours:</strong><br>' +
-               place.opening_hours.weekday_text[0] + '<br>' +
-               place.opening_hours.weekday_text[1] + '<br>' +
-               place.opening_hours.weekday_text[2] + '<br>' +
-               place.opening_hours.weekday_text[3] + '<br>' +
-               place.opening_hours.weekday_text[4] + '<br>' +
-               place.opening_hours.weekday_text[5] + '<br>' +
-               place.opening_hours.weekday_text[6];
-         }
-         if (place.photos) {
-           innerHTML += '<br><br><img src="' + place.photos[0].getUrl(
-               {maxHeight: 100, maxWidth: 200}) + '">';
-         }
-         innerHTML += '</div>';
-
-
-        infoWindow.setContent(innerHTML);
-        infoWindow.open(self.map, marker);
-        infoWindow.addListener('closeclick', function() {
-          infoWindow.setMarker = null;
-        })
-         }
-        }
-      )
-
-    } else {
-      FoursquareAPI.getVenueDetails(marker.id).then((venue) => {
-        infoWindow.marker = marker;
-        var innerHTML = "<div className='infoWindow' style=' text-align: center'>";
-        if (venue.name) {
-            innerHTML += '<strong>' + venue.name + '</strong>';
-          }
-        if (venue.location) {
-
-          for (var i=0; i < venue.location.length; i++ ) {
-            innerHTML += '<br>' + venue.location[i];
-          }
-        }
-
-        if (venue.contact.phone) {
-          innerHTML += '<br>' + venue.contact.formattedPhone;
-        }
-
-
-
-        if (venue.hours) {
-          innerHTML += '<br><br><strong>Hours:</strong><br>';
-
-          for (var j =0; j < venue.hours.timeframes.length; j++ ) {
-            innerHTML += '<br>' + venue.hours.timeframes[j].days + ': ' + venue.hours.timeframes[j].open[0].renderedTime;
-          }
-
-        }
-
-        innerHTML += '</div>';
-        infoWindow.setContent(innerHTML);
-        infoWindow.open(self.map, marker);
-        infoWindow.addListener('closeclick', function() {
-          infoWindow.setMarker = null;
-        })
-
-      })
+      for (var i=0; i < venueFromState.location.length; i++ ) {
+        innerHTML += '<br>' + venueFromState.location[i];
+      }
     }
 
+    if (venueFromState.contact) {
+      innerHTML += '<br>' + venueFromState.contact.formattedPhone;
+    }
 
-  }
-  searchBoxPlaces = (searchBox) => {
-    this.hideMarkers(this.state.markers);
-    this.setState({
-      recommendations: []
-    })
-    var places = searchBox.getPlaces();
-    this.setState({
-      searchResults: places
-    })
+    if (venueFromState.hours) {
+      innerHTML += '<br><br><strong>Hours:</strong>';
 
-    this.createMarkersForPlaces(places);
+      for (var j =0; j < venueFromState.hours.timeframes.length; j++ ) {
+        innerHTML += '<br>' + venueFromState.hours.timeframes[j].days + ': ' + venueFromState.hours.timeframes[j].open[0].renderedTime;
+      }
+    }
+    if (venueFromState.bestPhoto) {
+      innerHTML +='<br><img src="' + venueFromState.bestPhoto.prefix + '200x100' + venueFromState.bestPhoto.suffix + '">';
+    }
+
+    innerHTML += '</div>';
+    infoWindow.setContent(innerHTML);
+    infoWindow.open(self.map, marker);
+    infoWindow.addListener('closeclick', function() {
+      infoWindow.setMarker = null;
+      console.log(infoWindow);
+    })
   }
 
   getRecs = () => {
-    this.hideMarkers(this.state.markers);
     FoursquareAPI.getRecs().then((places) => {
       this.setState({
-        recommendations: places
+        recommendations: places,
+        filteredResults: places
       })
-      this.createMarkersForPlaces(this.state.recommendations)
+      /*
+      this.getRecommendationDetails(this.state.recommendations); */
     })
+
+  }
+
+  getRecommendationDetails = (places) => {
+    console.log('USING THE FoursquareAPI');
+    for (var i=0; i < places.length; i++ ) {
+      var place = places[i].venue;
+      // TODO: NEEDS A PROMISE TO WAIT FOR IT TO FINISH
+      FoursquareAPI.getVenueDetails(place.id).then((venue) => {
+        this.state.venueDetails.push(venue);
+      })
+    }
   }
 
 
-  initMap(searchResults) {
-    console.log(this.props.searchResults);
+  initMap() {
     var map = new window.google.maps.Map(
       document.getElementById('map-canvas'), {
         center: { lat: 41.8781, lng: -87.6298},
         zoom: 14
       });
     this.map = map;
-
     this.setState({
       mapref: map
     })
 
-    // TODO: set bounds for searchbox
-
-    var searchBox = new window.google.maps.places.SearchBox(
-      document.getElementById('search-bar-input')
-    )
-    searchBox.bindTo('bounds', map);
-    let self = this;
-    searchBox.addListener('places_changed', function() {
-      self.searchBoxPlaces(this);
-    });
-
-    if (this.state.searchResults) {
-      this.createMarkersForPlaces(this.state.searchResults);
-    }
+    this.getRecs();
 
   }
-
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.filteredResults !== prevState.filteredResults) {
+      this.hideMarkers(this.state.markers);
+      this.createMarkersForPlaces(this.state.filteredResults);
+    }
+    //clicking on a new list item when the old one has not been closed
+    if ((this.state.listItem !== prevState.listItem) && (prevState.itemClicked===true) && (prevState.animatedMarker===true)) {
+      this.closeAnimation(prevState.listItem);
+      this.setState({
+        itemClicked: true,
+        animatedMarker: true
+      })
+    } //clicking on an list item for the first time
+      else if ((this.state.listItem !=='') && (prevState.listItem==='') && (this.state.animatedMarker===true) && (prevState.animatedMarker===false)) {
+      console.log('clicking on a list item for the first time');
+      this.startAnimation(this.state.listItem);
+    } //clicking on the same list item to close it
+      else if ((this.state.listItem !=='') && (this.state.listItem === prevState.listItem) && (this.state.animatedMarker===false)) {
+      console.log('clicking on the same list item to close it');
+      this.closeAnimation(this.state.listItem);
+    } //clicking on a new list item when the old one has been closed
+      else if ((this.state.listItem !=='') && (this.state.listItem !== prevState.listItem) && (this.state.animatedMarker===true)) {
+      console.log('clicking on a new list item when the old one has been closed');
+      this.startAnimation(this.state.listItem);
+    } //clicking on the same list item to open it and/or if you had clicked on this list item without closing the old one first
+      else if ((this.state.listItem !== '') && (this.state.listItem === prevState.listItem) && (this.state.animatedMarker===true)) {
+      console.log('clicking on the same list item to open it');
+      this.startAnimation(this.state.listItem);
+    }
+  }
   componentDidMount() {
     if (!window.google) {
       var ref = window.document.getElementsByTagName("script")[0];
@@ -230,35 +249,31 @@ class App extends Component {
       script.async = true;
       ref.parentNode.insertBefore(script, ref);
       script.addEventListener('load', event => {
-        this.initMap(this.state.searchResults);
+        this.initMap();
       })
     } else {
-      this.initMap(this.state.searchResults);
+      this.initMap();
     }
   }
 
   render() {
     return (
       <div className="homepage-container">
-        <Switch>
-          <Route exact path="/" render={() => (
-            <Map
-              getRecs={this.getRecs}
-              initializeMap={this.initMap}
-              searchResults={this.state.searchResults}
-              />
-          )}
-          />
-          <Route path='/list' render={() => (
-            <ListView
-              searchResults={this.state.searchResults}
-              recResults={this.state.recommendations}
-              getRecs={this.getRecs}
-              />
-            )}
-          />
-        </Switch>
-
+          <Header
+            toggleList = {this.toggleList}
+            filterResults={this.filterResults}
+            />
+          <ListView
+            isOpen = {this.state.listOpen}
+            recResults={this.state.recommendations}
+            filteredResults={this.state.filteredResults}
+            toggleItemExpansion={this.toggleItemExpansion}
+            itemClicked={this.state.itemClicked}
+            listItem={this.state.listItem}
+            />
+          <Map
+            mapref = {this.state.mapref}
+            />
       </div>
 
     );

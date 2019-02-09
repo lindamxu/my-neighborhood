@@ -1,3 +1,4 @@
+
 .App {
   text-align: center;
 }
@@ -36,29 +37,34 @@
 }
 /*Header*/
 .header {
-  height: 100px;
+  padding-left: 10px;
+  width: 100%;
+  height: 80px;
   background-color: #677DB7;
   padding-top: 1px;
-}
-.header h3 {
-  color: white;
-  font-weight: 300;
-  text-align: center;
-}
-.button-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: flex-start;
+  align-items: center;
 }
-.header button {
-  background-color: white;
-  text-align: center;
-  margin-right: 10px;
-  height: 30px;
-  width: auto;
-  border-radius: 10px;
+.hamburger-menu {
+  display: block;
+  top: 20px;
+  left: 15px;
+  width: 50px;
+  height: 53px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 60px;
+  font-size: 0;
+  border: none;
+  outline: none;
+  background-image: url('./icons/hamburgermenu.png');
+  background-color: transparent;
 }
 #search-bar-input {
-  width: 40%;
+  width: 100%;
+  padding-left: 10px;
+  margin-right: 20px;
   height: 30px;
   font-size: 1em;
   color: #677DB7;
@@ -68,21 +74,89 @@
 ::placeholder {
   color: #677DB7;
 }
-#search-bar-drop-down {
-  height: 30px;
-  width: 120px;
-  font-size: 1em;
-  border-radius: 10px;
-  background-color: white;
-  color: #677DB7;
-  text-align: center;
-}
 
 /*Map Component */
 .map-container {
   width: auto;
-  height: 600px;
+  height: 100vh;
 }
 .infoWindow {
   text-align: center;
+}
+/*List View */
+#listview {
+  max-width: 414px;
+  position: relative;
+}
+.list-view  {
+  position: absolute;
+  background-color: #9CA3DB;
+  width: 414px;
+  height: 100vh;
+  top: 0;
+  z-index: 4;
+  overflow: scroll;
+}
+.hide-list {
+  transition: all 0.3s ease;
+  transform: translateX(-414px);
+}
+
+.show-list {
+  transition: all 0.3s ease;
+  transform: translateX(0);
+}
+.item-list-details {
+  height: 10px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+.item-list-details-expanded {
+  min-height: 100px;
+  transition: all 0.3s ease;
+
+}
+.result-item-list {
+  background-color: white;
+  border-radius: 10px;
+  padding-inline-start: 0px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin: 5px;
+}
+.result-item-list h2 {
+  font-weight: lighter;
+  padding-left: 5px;
+
+}
+.results-grid {
+  padding: 10px;
+}
+.down-button {
+  display: block;
+  width: 20px;
+  height: 15px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 20px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  background-image: url('./icons/down-button.png');
+  margin-bottom: 1px;
+}
+
+.up-button {
+  display: block;
+  width: 20px;
+  height: 15px;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 20px;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  background-image: url('./icons/up-button.png');
+  margin-bottom: 1px;
 }

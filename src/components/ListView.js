@@ -1,32 +1,36 @@
 import React, { Component } from 'react';
-import Header from './Header.js';
 import ListItem from './ListItem';
 
 class ListView extends Component {
+
   render() {
-    console.log('list page!');
+    const { isOpen, toggleItemExpansion, listItem, itemClicked } = this.props;
+
     return(
-      <div>
-        <Header
-          getRecs={this.props.getRecs}
-          />
-        <div className='search-results-list'>
-          <ol className='results-grid'>
-            {this.props.searchResults.map((result,i) => {
-              console.log(result);
-              return <ListItem
-                key={result.id}
-                name={result.name}
-                address={result.formatted_address}
-                placeId = {result.id}
-                imgSrc={result.photos[0].getUrl()}
-                priceLevel = {result.price_level}
-                rating = {result.rating}
-                types={result.types}
-                />
-            })}
-          </ol>
-        </div>
+      <div id='listview'>
+        <aside
+          className={ 'list-view ' + (isOpen ? 'show-list': 'hide-list')}
+          >
+          <div className='search-results-list'>
+            <ol className='results-grid'>
+              {this.props.filteredResults.map((result,i) => {
+                return <ListItem
+                  key={result.venue.id}
+                  name={result.venue.name}
+                  address={result.venue.formatted_address}
+                  placeId = {result.venue.id}
+                  imgSrc={result.venue.bestPhoto}
+                  priceLevel = {result.venue.price_level}
+                  rating = {result.venue.rating}
+                  types={result.venue.types}
+                  itemClicked={itemClicked}
+                  listItem={listItem}
+                  toggleItemExpansion={toggleItemExpansion.bind(this)}
+                  />
+              })}
+            </ol>
+          </div>
+        </aside>
       </div>
     );
   }

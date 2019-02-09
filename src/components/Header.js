@@ -1,45 +1,23 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
-
 class Header extends Component {
+
+  filterResults(query) {
+    this.props.filterResults(query);
+  }
 
   render() {
     return (
       <div className='header'>
-        <h3> Welcome to Chicago! </h3>
-        <div className='button-container'>
-          <input
-            id='search-bar-input'
-            type="text"
-            placeholder="Search a place in Chicago"
+        <button
+          className='hamburger-menu'
+          onClick={this.props.toggleList.bind(this)}
           />
-          <button
-            onClick={this.props.getRecs.bind(this)}
-            >
-            Recommendations
-          </button>
-          <select id='search-bar-drop-down'>
-            <option> Venue Type </option>
-          </select>
-          <select id='search-bar-drop-down'>
-            <option> Neighborhood </option>
-          </select>
-          <Link
-            to='/'
-            onClick={() => this.props.initializeMap.bind()}
-            >
-            <button
-              >
-              Map View
-            </button>
-          </Link>
-          <Link to="list">
-            <button
-              >
-              List View
-            </button>
-          </Link>
-        </div>
+        <input
+          id='search-bar-input'
+          type="text"
+          placeholder="Filter by name"
+          onChange={event => this.filterResults(event.target.value)}
+        />
       </div>
     );
   }
