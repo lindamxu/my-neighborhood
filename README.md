@@ -1,74 +1,35 @@
-<<<<<<< HEAD
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-# ADD INFO ABOUT SERVICE WORKER
-## Available Scripts
+# Project Overview
+## Objective
+This project fulfills the last project for Udacity's Front End Nanodegree program which incorporates creating an React-based app about a chosen neighborhood and interfacing with APIs. The project was bootstrapped using create-react-app and uses the Google Maps API as well as the Foursquare API.
 
-In the project directory, you can run:
+## Functionality
+This app is a tourism app for the city of Chicago. I am using the Foursquare API to source their top recommendations and the details of each recommendation while using the Google Maps API to render the map and location markers. There are two main views: list view and map view. The two can be toggled with the hamburger menu that sits on the left of the filter box. The filter box takes in text input to filter the Foursquare recommended attractions by the name of the attraction.
 
-### `npm start`
+NOTE: I've currently limited the recommendation results to be <b>5</b> due to how easy it is for the Foursquare API to reach the quota of the personal account. When daily quotas refresh at midnight UTC, I will increase up to 30 results.
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Responsiveness
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+While desktop and iPad interfaces see the list view as a sliding sidebar that splits the map view, mobile interfaces only sees the map or list view at one time, thus functioning more like a tab bar.  
 
-### `npm test`
+# Installation
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Developer mode
+1. Download this project to your local drive using the command: `git clone https://github.com/lindamxu/my-neighborhood.git`
+2. Install project dependencies: `npm install` or `yarn install`
+3. Start the development server, which should be http://localhost:3000/: `npm start`
 
-### `npm run build`
+## Service Worker
+1. Run the following in your project directory: `npm run build`
+2. Then run `npm install -g serve`
+3. Deploy via the build folder: `serve -s build`
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+# Resources
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
-
-### Analyzing the Bundle Size
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
-
-### Making a Progressive Web App
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
-
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
-||||||| merged common ancestors
-=======
-# my-neighborhood
->>>>>>> 8de1b6e0b87b0ece879996af0288e11b3cd3204c
+1. [Udacity Project Rubric](https://review.udacity.com/#!/rubrics/1351/view)
+2. [Google API Documentation](https://developers.google.com/maps/documentation/javascript/tutorial)
+3. [Foursquare API](https://developer.foursquare.com/docs)
+4. [ARIA Guidelines](https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Roles)
+5. [Create React App](https://github.com/facebook/create-react-app)
