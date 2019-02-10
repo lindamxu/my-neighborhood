@@ -18,9 +18,8 @@ class App extends Component {
       venueDetails: [],
       animatedMarker: false,
       listOpen: false,
-      mapref: '',
       itemClicked: false,
-      listItem: ''
+      listItem: '',
     }
   }
 
@@ -52,51 +51,6 @@ class App extends Component {
         animatedMarker: true
       })
     }
-
-    var venueFromState = this.state.venueDetails.filter(venue => venue.id === event.target.getAttribute('id'))[0];
-
-    const itemExpansion = document.getElementsByClassName('item-list-details-expanded');
-
-    itemExpansion.innerHTML = venueFromState.rating;
-    const rating = document.createElement('h4');
-    const address = document.createElement('p');
-    const contact = document.createElement('p');
-    const hours = document.createElement('p');
-    const img = document.createElement('img');
-    console.log(itemExpansion);
-    /*
-    if (venueFromState.rating) {
-      rating.innerHTML = 'Rating: ' + venueFromState.rating;
-    } else {
-      rating.innerHTML = 'Rating: None';
-    }
-    itemExpansion.appendChild(rating);
-
-    if (venueFromState.location) {
-      for (var i=0; i < venueFromState.location.formattedAddress.length; i++ ) {
-        address.innerHTML += '<br>' + venueFromState.location.formattedAddress[i];
-      }
-    } else {
-      address.innerHTML = ' No Address';
-    }
-    itemExpansion.appendChild(address);
-
-    if (venueFromState.contact) {
-      contact.innerHTML = '<br>' + venueFromState.contact.formattedPhone;
-    }
-    itemExpansion.appendChild(contact);
-
-    if (venueFromState.hours) {
-      hours.innerHTML = '<br><strong>Hours:</strong>';
-      for (var j =0; j < venueFromState.hours.timeframes.length; j++ ) {
-        hours.innerHTML += '<br>' + venueFromState.hours.timeframes[j].days + ': ' + venueFromState.hours.timeframes[j].open[0].renderedTime;
-      }
-    }
-    itemExpansion.appendChild(hours);
-    if (venueFromState.bestPhoto) {
-      img.src = venueFromState.bestPhoto.prefix + '200x100' + venueFromState.bestPhoto.suffix
-    }
-    itemExpansion.appendChild(img); */
   }
 
 
@@ -113,15 +67,20 @@ class App extends Component {
   }
 
   filterResults = (query) => {
-    if (query === '') {
-      this.setState({
-        filteredResults: [...this.state.recommendations]
-      });
+    if (query.match(/[a-z]/i) || query === '') {
+      if (query === '') {
+        this.setState({
+          filteredResults: [...this.state.recommendations]
+        });
+      } else {
+        this.setState({
+          filteredResults: [...this.state.recommendations].filter(place => new RegExp(query, 'i').exec(place.venue.name))
+        })
+      }
     } else {
-      this.setState({
-        filteredResults: [...this.state.recommendations].filter(place => new RegExp(query, 'i').exec(place.venue.name))
-      })
+      alert("Error: You must enter only letters in the input");
     }
+
   }
 
   hideMarkers = (markers) => {
@@ -157,6 +116,7 @@ class App extends Component {
          var infoWindow = new window.google.maps.InfoWindow();
          marker.addListener('click', function() {
            if (infoWindow.marker === this) {
+             console.log(infoWindow);
              console.log("infoWindow is already on the marker");
            } else {
              console.log(infoWindow);
@@ -206,6 +166,7 @@ class App extends Component {
     infoWindow.setContent(innerHTML);
     infoWindow.open(self.map, marker);
     infoWindow.addListener('closeclick', function() {
+      infoWindow.marker = null;
       infoWindow.setMarker = null;
     })
   }
@@ -215,7 +176,7 @@ class App extends Component {
       FoursquareAPI.getRecs().then((places) => {
         resolve(places);
       }).catch((error) => {
-        alert('No network or no response from Foursquare servers');
+        alert('Error: No network or no response from Foursquare servers');
       })
     })
 
@@ -247,18 +208,6 @@ class App extends Component {
     });
   }
 
-  getRecommendationDetails = (places) => {
-    console.log('USING THE FoursquareAPI');
-    for (var i=0; i < places.length; i++ ) {
-      var place = places[i].venue;
-      // TODO: NEEDS A PROMISE TO WAIT FOR IT TO FINISH
-      FoursquareAPI.getVenueDetails(place.id).then((venue) => {
-        this.state.venueDetails.push(venue);
-      })
-    }
-  }
-
-
   initMap() {
     var map = new window.google.maps.Map(
       document.getElementById('map-canvas'), {
@@ -266,10 +215,6 @@ class App extends Component {
         zoom: 14
       });
     this.map = map;
-    this.setState({
-      mapref: map
-    })
-
     this.getRecs();
 
   }
@@ -326,6 +271,7 @@ class App extends Component {
           <Header
             toggleList = {this.toggleList}
             filterResults={this.filterResults}
+            listOpen={this.state.listOpen}
             />
           <ListView
             isOpen = {this.state.listOpen}
@@ -336,9 +282,7 @@ class App extends Component {
             itemClicked={this.state.itemClicked}
             listItem={this.state.listItem}
             />
-          <Map
-            mapref = {this.state.mapref}
-            />
+          <Map />
       </div>
 
     );

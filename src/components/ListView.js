@@ -8,12 +8,17 @@ class ListView extends Component {
     const { isOpen, toggleItemExpansion, listItem, itemClicked, venueDetails, filteredResults } = this.props;
 
     return(
-      <div id='listview'>
+      <div
+        tabIndex='0'
+        id='listview'>
         <aside
+          role='tab'
           className={ 'list-view ' + (isOpen ? 'show-list': 'hide-list')}
           >
           <div className='search-results-list'>
-            <ol className='results-grid'>
+            <ul
+              aria-label='list of filtered results'
+              className='results-grid'>
               {filteredResults.map((result,i) => {
                 console.log(venueDetails);
                 console.log(result);
@@ -37,7 +42,9 @@ class ListView extends Component {
                   toggleItemExpansion={toggleItemExpansion.bind(this)}
                   />
               })}
-            </ol>
+            </ul>
+          </div>
+          <div className='foursquare'>
           </div>
         </aside>
       </div>

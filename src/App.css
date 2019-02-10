@@ -38,7 +38,7 @@
 /*Header*/
 .header {
   padding-left: 10px;
-  width: 100%;
+  width: auto;
   height: 80px;
   background-color: #677DB7;
   padding-top: 1px;
@@ -117,7 +117,10 @@
   text-align: center;
   line-height: 0.5;
 }
-.item-list-details-expanded p span {
+.item-list-details-expanded p  {
+  font-size: 20px;
+}
+.item-list-details-expanded span {
   font-size: 20px;
 }
 .list-item-rating {
@@ -180,4 +183,37 @@
   outline: none;
   background-image: url('./icons/up-button.png');
   margin-bottom: 1px;
+}
+
+.foursquare {
+  background-image: url('./icons/foursquare.png');
+  width: auto;
+  height: 60px;
+  background-repeat: no-repeat;
+  background-size: 400px;
+  position: relative;
+  background-position-x: center;
+  background-position-y: bottom;
+}
+/*for mobile devices */
+@media screen and (min-width: 320px) and (max-width: 414px){
+  .list-view  {
+    width: auto;
+  }
+  .list-item-image {
+    width: 250px;
+    height: 200px;
+  }
+  .list-item-rating {
+    font-size: 14px;
+  }
+  .item-list-details-expanded p {
+    font-size: 14px ;
+  }
+  .item-list-details-expanded span {
+    font-size: 14px;
+  }
+  .foursquare {
+    background-size: auto;
+  }
 }

@@ -6,10 +6,13 @@ class Header extends Component {
   }
 
   render() {
+    const { listOpen } = this.props;
     return (
-      <div className='header'>
+      <div className='header' tabIndex='0'>
         <button
+          aria-label='button to toggle list view'
           className='hamburger-menu'
+          aria-pressed={listOpen ? true : false }
           onClick={this.props.toggleList.bind(this)}
           />
         <input
