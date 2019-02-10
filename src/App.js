@@ -23,19 +23,20 @@ class App extends Component {
     }
   }
 
+  //start marker animation
   startAnimation = (markerId) => {
-    console.log('starting animation');
     var pickedMarker = this.state.markers.filter(marker => marker.id === markerId)[0];
     pickedMarker.setAnimation(window.google.maps.Animation.BOUNCE);
     this.map.panTo(pickedMarker.position);
 
   }
+  //close marker animation
   closeAnimation = (markerId) => {
-    console.log('closing animation');
     var pickedMarker = this.state.markers.filter(marker => marker.id === markerId)[0];
     pickedMarker.setAnimation(-1);
-
   }
+
+  //toggle list item expansion
   toggleItemExpansion = (event) => {
     this.setState({
       listItem: event.target.getAttribute('id')
@@ -53,7 +54,7 @@ class App extends Component {
     }
   }
 
-
+  //toggle list view and map view
   toggleList = () => {
     if (this.state.listOpen) {
       this.setState({
@@ -66,7 +67,9 @@ class App extends Component {
     }
   }
 
+  //filter results by name
   filterResults = (query) => {
+    //make sure that you only search by letters
     if (query.match(/[a-z]/i) || query === '') {
       if (query === '') {
         this.setState({
@@ -83,11 +86,13 @@ class App extends Component {
 
   }
 
+  //hide markers
   hideMarkers = (markers) => {
     for (var i=0; i < markers.length; i++) {
       markers[i].setMap(null);
     }
   }
+  //create markers on the map
   createMarkersForPlaces = (places) => {
     for (var i = 0; i < places.length; i++) {
          var place = places[i];
@@ -114,12 +119,11 @@ class App extends Component {
 
          let self = this;
          var infoWindow = new window.google.maps.InfoWindow();
+         //open the infoWindow of a marker when you click on it
          marker.addListener('click', function() {
            if (infoWindow.marker === this) {
-             console.log(infoWindow);
              console.log("infoWindow is already on the marker");
            } else {
-             console.log(infoWindow);
              self.openInfoWindow(this, infoWindow);
            }
          });
@@ -128,21 +132,18 @@ class App extends Component {
 
   }
 }
+  //open the infowindow of a marker
   openInfoWindow = (marker, infoWindow) => {
     let self = this;
-    console.log(self.state);
+    //filtering from the venues details array to avoid using the Foursquare API directly to save on requests
     var venueFromState = self.state.venueDetails.filter(venue => venue.id === marker.id)[0];
-    console.log(venueFromState);
-    console.log('getting venue from state!!');
     infoWindow.marker = marker;
-    console.log(infoWindow);
     var innerHTML = "<div className='infoWindow' style=' text-align: center'>";
     if (venueFromState.name) {
         innerHTML += '<strong>' + venueFromState.name + '</strong>';
       }
     if (venueFromState.location) {
       for (var i=0; i < venueFromState.location.formattedAddress.length; i++) {
-        console.log(venueFromState.location);
         innerHTML += '<br>' + venueFromState.location.formattedAddress[i];
       }
     }
@@ -165,13 +166,17 @@ class App extends Component {
     innerHTML += '</div>';
     infoWindow.setContent(innerHTML);
     infoWindow.open(self.map, marker);
+    //close the infowindow when you click on the exit button
     infoWindow.addListener('closeclick', function() {
       infoWindow.marker = null;
       infoWindow.setMarker = null;
     })
   }
-
+  //get recommendations for Foursquare and their details
   getRecs = () => {
+
+    //wrap both requests (recommendations and recommendation detaiils) in Promises so that you ensure that you create
+    //the markers AFTER you have had all the locations loaded
     var recPromise = new Promise(function(resolve, reject) {
       FoursquareAPI.getRecs().then((places) => {
         resolve(places);
@@ -197,9 +202,8 @@ class App extends Component {
     })
 
     let self = this;
-
+    //trigger rerendering only AFTER all recommendations and their details are finished loading
     Promise.all([recPromise, recDetails]).then(function(values) {
-      console.log(values);
       self.setState({
         recommendations: values[0],
         filteredResults: values[0],
@@ -207,7 +211,7 @@ class App extends Component {
       })
     });
   }
-
+  //initialize Google map
   initMap() {
     var map = new window.google.maps.Map(
       document.getElementById('map-canvas'), {
@@ -218,9 +222,10 @@ class App extends Component {
     this.getRecs();
 
   }
+  //When you update the state and trigger a re-rendering
   componentDidUpdate(prevProps, prevState) {
+    //when you have filtered the results
     if (this.state.filteredResults !== prevState.filteredResults) {
-      console.log(this.state.venueDetails)
       this.hideMarkers(this.state.markers);
       this.createMarkersForPlaces(this.state.filteredResults);
     }
@@ -233,19 +238,15 @@ class App extends Component {
       })
     } //clicking on an list item for the first time
       else if ((this.state.listItem !=='') && (prevState.listItem==='') && (this.state.animatedMarker===true) && (prevState.animatedMarker===false)) {
-      console.log('clicking on a list item for the first time');
       this.startAnimation(this.state.listItem);
     } //clicking on the same list item to close it
       else if ((this.state.listItem !=='') && (this.state.listItem === prevState.listItem) && (this.state.animatedMarker===false)) {
-      console.log('clicking on the same list item to close it');
       this.closeAnimation(this.state.listItem);
     } //clicking on a new list item when the old one has been closed
       else if ((this.state.listItem !=='') && (this.state.listItem !== prevState.listItem) && (this.state.animatedMarker===true)) {
-      console.log('clicking on a new list item when the old one has been closed');
       this.startAnimation(this.state.listItem);
     } //clicking on the same list item to open it and/or if you had clicked on this list item without closing the old one first
       else if ((this.state.listItem !== '') && (this.state.listItem === prevState.listItem) && (this.state.animatedMarker===true)) {
-      console.log('clicking on the same list item to open it');
       this.startAnimation(this.state.listItem);
     }
   }
