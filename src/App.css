@@ -114,7 +114,27 @@
 .item-list-details-expanded {
   min-height: 100px;
   transition: all 0.3s ease;
-
+  text-align: center;
+  line-height: 0.5;
+}
+.item-list-details-expanded p span {
+  font-size: 20px;
+}
+.list-item-rating {
+  color: #677DB7;
+  font-style: bold;
+}
+.list-item-tip {
+  color: #677DB7;
+  font-style: italic;
+  font-size: 20px;
+  line-height: 1;
+  padding: 15px;
+}
+.list-item-image {
+  width: 300px;
+  height: 250px;
+  margin-top: 10px;
 }
 .result-item-list {
   background-color: white;
@@ -128,6 +148,7 @@
 .result-item-list h2 {
   font-weight: lighter;
   padding-left: 5px;
+  margin-bottom: 0px;
 
 }
 .results-grid {

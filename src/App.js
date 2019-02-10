@@ -7,7 +7,6 @@ import * as FoursquareAPI from './FoursquareAPI.js';
 import './App.css';
 
 class App extends Component {
-
   constructor(props) {
     super(props);
     this.initMap = this.initMap.bind(this);
@@ -53,6 +52,51 @@ class App extends Component {
         animatedMarker: true
       })
     }
+
+    var venueFromState = this.state.venueDetails.filter(venue => venue.id === event.target.getAttribute('id'))[0];
+
+    const itemExpansion = document.getElementsByClassName('item-list-details-expanded');
+
+    itemExpansion.innerHTML = venueFromState.rating;
+    const rating = document.createElement('h4');
+    const address = document.createElement('p');
+    const contact = document.createElement('p');
+    const hours = document.createElement('p');
+    const img = document.createElement('img');
+    console.log(itemExpansion);
+    /*
+    if (venueFromState.rating) {
+      rating.innerHTML = 'Rating: ' + venueFromState.rating;
+    } else {
+      rating.innerHTML = 'Rating: None';
+    }
+    itemExpansion.appendChild(rating);
+
+    if (venueFromState.location) {
+      for (var i=0; i < venueFromState.location.formattedAddress.length; i++ ) {
+        address.innerHTML += '<br>' + venueFromState.location.formattedAddress[i];
+      }
+    } else {
+      address.innerHTML = ' No Address';
+    }
+    itemExpansion.appendChild(address);
+
+    if (venueFromState.contact) {
+      contact.innerHTML = '<br>' + venueFromState.contact.formattedPhone;
+    }
+    itemExpansion.appendChild(contact);
+
+    if (venueFromState.hours) {
+      hours.innerHTML = '<br><strong>Hours:</strong>';
+      for (var j =0; j < venueFromState.hours.timeframes.length; j++ ) {
+        hours.innerHTML += '<br>' + venueFromState.hours.timeframes[j].days + ': ' + venueFromState.hours.timeframes[j].open[0].renderedTime;
+      }
+    }
+    itemExpansion.appendChild(hours);
+    if (venueFromState.bestPhoto) {
+      img.src = venueFromState.bestPhoto.prefix + '200x100' + venueFromState.bestPhoto.suffix
+    }
+    itemExpansion.appendChild(img); */
   }
 
 
@@ -86,8 +130,6 @@ class App extends Component {
     }
   }
   createMarkersForPlaces = (places) => {
-
-    // TODO: FIX! MAKE ONLY FOR FOURSQUARE API
     for (var i = 0; i < places.length; i++) {
          var place = places[i];
          var icon = {
@@ -128,10 +170,7 @@ class App extends Component {
 }
   openInfoWindow = (marker, infoWindow) => {
     let self = this;
-
-    // TODO: Fix marker issue
-
-    console.log(self.state.venueDetails);
+    console.log(self.state);
     var venueFromState = self.state.venueDetails.filter(venue => venue.id === marker.id)[0];
     console.log(venueFromState);
     console.log('getting venue from state!!');
@@ -142,9 +181,9 @@ class App extends Component {
         innerHTML += '<strong>' + venueFromState.name + '</strong>';
       }
     if (venueFromState.location) {
-
-      for (var i=0; i < venueFromState.location.length; i++ ) {
-        innerHTML += '<br>' + venueFromState.location[i];
+      for (var i=0; i < venueFromState.location.formattedAddress.length; i++) {
+        console.log(venueFromState.location);
+        innerHTML += '<br>' + venueFromState.location.formattedAddress[i];
       }
     }
 
@@ -168,20 +207,44 @@ class App extends Component {
     infoWindow.open(self.map, marker);
     infoWindow.addListener('closeclick', function() {
       infoWindow.setMarker = null;
-      console.log(infoWindow);
     })
   }
 
   getRecs = () => {
-    FoursquareAPI.getRecs().then((places) => {
-      this.setState({
-        recommendations: places,
-        filteredResults: places
+    var recPromise = new Promise(function(resolve, reject) {
+      FoursquareAPI.getRecs().then((places) => {
+        resolve(places);
+      }).catch((error) => {
+        alert('No network or no response from Foursquare servers');
       })
-      /*
-      this.getRecommendationDetails(this.state.recommendations); */
     })
 
+
+
+    var recDetails = new Promise(function(resolve,reject) {
+      recPromise.then(function(values) {
+        var loadRecs=[]
+
+        for (var i=0; i < values.length; i++ ) {
+          var place = values[i].venue;
+          FoursquareAPI.getVenueDetails(place.id).then((venue) => {
+            loadRecs.push(venue);
+          })
+        }
+        resolve(loadRecs);
+      })
+    })
+
+    let self = this;
+
+    Promise.all([recPromise, recDetails]).then(function(values) {
+      console.log(values);
+      self.setState({
+        recommendations: values[0],
+        filteredResults: values[0],
+        venueDetails: values[1]
+      })
+    });
   }
 
   getRecommendationDetails = (places) => {
@@ -212,6 +275,7 @@ class App extends Component {
   }
   componentDidUpdate(prevProps, prevState) {
     if (this.state.filteredResults !== prevState.filteredResults) {
+      console.log(this.state.venueDetails)
       this.hideMarkers(this.state.markers);
       this.createMarkersForPlaces(this.state.filteredResults);
     }
@@ -267,6 +331,7 @@ class App extends Component {
             isOpen = {this.state.listOpen}
             recResults={this.state.recommendations}
             filteredResults={this.state.filteredResults}
+            venueDetails={this.state.venueDetails}
             toggleItemExpansion={this.toggleItemExpansion}
             itemClicked={this.state.itemClicked}
             listItem={this.state.listItem}
